@@ -94,9 +94,20 @@ void apareo_aceptados(Pedido web[], int n, Pedido telefono[], int m, Pedido acep
         {
             aceptados[k++] = web[i++];
         }
-        else
+        else if (web[i].hora > telefono[j].hora)
         {
             aceptados[k++] = telefono[j++];
+        }
+        else
+        {
+            
+            aceptados[k++] = web[i++];
+            if (k<k_limite) //si justo cae en las 12, no me tomaba el otro valor porque incrementaban ambos
+            {
+                aceptados[k++] = telefono[j++];
+            } 
+            
+   
         }
     }
 
@@ -109,13 +120,11 @@ void apareo_rechazados(Pedido web[], int n, Pedido telefono[], int m, Pedido rec
     {
         if (web[i].hora < telefono[j].hora)
         {
-            rechazados[k] = web[i];
-            i++;
+            rechazados[k] = web[i++];
         }
         else
         {
-            rechazados[k] = telefono[j];
-            j++;
+            rechazados[k] = telefono[j++];
         }
         k++;
     }
@@ -127,9 +136,7 @@ void apareo_rechazados(Pedido web[], int n, Pedido telefono[], int m, Pedido rec
 
     while (j < m)
     {
-        rechazados[k] = telefono[j];
-        j++;
-        k++;
+        rechazados[k++] = telefono[j++];
     }
 
 }
