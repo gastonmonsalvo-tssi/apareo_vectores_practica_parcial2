@@ -73,7 +73,6 @@ const int TIPO_PAQUETE_LIVIANO  = 1;
 const int TIPO_PAQUETE_MEDIO    = 2;
 const int TIPO_PAQUETE_PESADO   = 3;
 const int MAX_CANTIDAD_PEDIDOS = 100;
-
 struct Pedido
 {
     int hora;
@@ -88,6 +87,13 @@ struct Iterador
     int i;
     int j;
     int k;
+};
+
+struct Acumulador
+{
+    int total_livianos;
+    int total_pesados;
+    int total_medio;
 };
 
 void apareo_aceptados(Pedido web[], int n, Pedido telefono[], int m, Pedido aceptados[], int k_limite, Iterador& iterador)
@@ -134,6 +140,86 @@ void apareo_rechazados(Pedido web[], int n, Pedido telefono[], int m, Pedido rec
     }
 
 }
+/*
+ c. Realizar diagrama de un procedimiento que reciba el listado de pedidos 
+    a realizar en el día y genere el siguiente listado agrupado por hora del pedido recibido:
+HORA	LIVIANOS	MEDIO		PESADO	TOTAL X HORA
+  6		2	        0		      1	        3
+    d. Al finalizar el listado imprimir los siguientes datos de reporte:
+TOTAL LIVIANOS: 99 	TOTAL MEDIO: 99	TOTAL PESADOS: 99
+HORA CON MENOS ENVIOS: 13
+*/
+void listado_pedidos_a_realizar(Pedido pedidos_aceptados[], int tamaño_aceptados, Acumulador& acumuladores, int &hora_menos_envios)
+{
+    int i = 0;
+    int key;
+    cout << "-----------------------------------------------------" << endl;
+    cout << "\t\tLISTADO DE PEDIDOS" << endl;
+    cout << "-----------------------------------------------------" << endl;
+    while (i < tamaño_aceptados)
+    {
+        key = pedidos_aceptados[i].hora;
+        int paquetes_livianos=0;
+        int paquetes_medios=0;
+        int paquetes_pesados=0;
+        int paquetes_totales = 0;
+        while (i < tamaño_aceptados && key == pedidos_aceptados[i].hora)
+        {
+           switch (pedidos_aceptados[i].tipo_paquete)
+           {
+           case TIPO_PAQUETE_LIVIANO:
+                paquetes_livianos++;
+                acumuladores.total_livianos++;
+            break;
+           case TIPO_PAQUETE_MEDIO:
+                paquetes_medios++;
+                acumuladores.total_medio++;
+            break;
+           case TIPO_PAQUETE_PESADO:
+                paquetes_pesados++;
+                acumuladores.total_pesados++;
+            break;
+           default:
+                cout << "Error en tipo de paquete"<< endl;
+            break;
+           }
+            paquetes_totales++;
+            i++; // Avanza a la siguiente posicion
+        }
+
+        if (hora_menos_envios<paquetes_totales)
+        {
+            hora_menos_envios=key;  //tomo el valor de la hora, siempre me quedo con el primero
+        }
+
+        cout << "HORA\tLIVIANOS\tMEDIO\tPESADO\tTOTAL X HORA" << endl;
+        cout << key << "\t" << paquetes_livianos << "\t\t" << 
+        paquetes_medios << "\t" << paquetes_pesados << "\t" << paquetes_totales << endl;
+    }
+
+    cout << "-----------------------------------------------------" << endl;
+    cout << "\t\tFIN LISTADO PEDIDOS" << endl;
+    cout << "-----------------------------------------------------" << endl;
+}
+
+void mostrar_datos_reporte(Acumulador& acumuladores, int hora_menos_envios){
+    
+    /*
+    TOTAL LIVIANOS: 99 	TOTAL MEDIO: 99	TOTAL PESADOS: 99
+    HORA CON MENOS ENVIOS: 13
+    */
+    cout << "-----------------------------------------------------" << endl;
+    cout << "\t\tDATOS DE REPORTE" << endl;
+    cout << "-----------------------------------------------------" << endl;
+    cout << "TOTAL LIVIANOS\tTOTAL MEDIO\t TOTAL PESADO" << endl;
+    cout <<"\t"<<acumuladores.total_livianos << "\t\t" << acumuladores.total_medio <<"\t\t" << acumuladores.total_pesados << endl;
+    cout << "HORA CON MENOS ENVIOS:";
+    cout << hora_menos_envios<< endl;
+    cout << "-----------------------------------------------------" << endl;
+    cout << "\t\tFIN DATOS DE REPORTE" << endl;
+    cout << "-----------------------------------------------------" << endl;
+}
+
 int main () {
     int moviles = 2;
     int horas_reparto = 2;
@@ -142,7 +228,11 @@ int main () {
     iterador.i = 0;
     iterador.j = 0;
     iterador.k = 0;
-
+    Acumulador acumuladores;
+    acumuladores.total_livianos=0;
+    acumuladores.total_medio=0;
+    acumuladores.total_pesados=0;
+    int hora_menos_envios=-1;  //minimo, -1 paquete entregados a hora X
     //asumimos tamaño
     Pedido pedidos_web[MAX_CANTIDAD_PEDIDOS] = 
     {   { 6, 1001, TIPO_PAQUETE_LIVIANO, "Buenos Aires", "Rosario" },
@@ -174,30 +264,29 @@ int main () {
     Pedido pedidos_rechazados[MAX_CANTIDAD_PEDIDOS*2];
     
     int Pedidos_Max = moviles * horas_reparto * 3;
-    int i_guardado;
-    int j_guardado;
-
-    apareo_aceptados(pedidos_web, 9 , pedidos_telefonicos, 9, pedidos_a_atender, Pedidos_Max, iterador);
-    apareo_rechazados(pedidos_web, 9 , pedidos_telefonicos, 9, pedidos_rechazados, iterador);
-    
-    cout << "arranca aceptados" << endl;
-
-    for (int i = 0; i < Pedidos_Max; i++)
-    {
-        cout << "Hora " << pedidos_a_atender[i].hora;
-        cout << " " << pedidos_a_atender[i].codigo_cliente << endl;
-    }
-    cout << endl;
-
-    cout << "arranca rechazados" << endl;
-    for (int i = 0; i < iterador.k; i++)
-    {   
-        cout << "Hora " << pedidos_rechazados[i].hora;
-        cout << " " << pedidos_rechazados[i].codigo_cliente << endl;
-    }
-    
 
     //apareo de pedidos_web y pedidos_telefonicos
+    apareo_aceptados(pedidos_web, 9 , pedidos_telefonicos, 9, pedidos_a_atender, Pedidos_Max, iterador);
+    apareo_rechazados(pedidos_web, 9 , pedidos_telefonicos, 9, pedidos_rechazados, iterador);
+    // cout << "arranca aceptados" << endl;
+
+    // for (int i = 0; i < Pedidos_Max; i++)
+    // {
+    //     cout << "Hora " << pedidos_a_atender[i].hora;
+    //     cout << " " << pedidos_a_atender[i].codigo_cliente << endl;
+    // }
+    // cout << endl;
+
+    // cout << "arranca rechazados" << endl;
+    // for (int i = 0; i < iterador.k; i++)
+    // {   
+    //     cout << "Hora " << pedidos_rechazados[i].hora;
+    //     cout << " " << pedidos_rechazados[i].codigo_cliente << endl;
+    // }
+    
+    listado_pedidos_a_realizar(pedidos_a_atender,Pedidos_Max,acumuladores,hora_menos_envios);
+    mostrar_datos_reporte(acumuladores,hora_menos_envios);
+
     
   
   
