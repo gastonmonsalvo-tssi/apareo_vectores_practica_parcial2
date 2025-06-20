@@ -1,4 +1,4 @@
-/**
+/**Add commentMore actions
  * Alumno:……………………………….                    Fecha:……………………………
     1) Una agencia de reparto posee dos canales para recibir pedidos, uno es 
     la página web de la empresa y el otro un operador que atiende la línea 
@@ -94,20 +94,9 @@ void apareo_aceptados(Pedido web[], int n, Pedido telefono[], int m, Pedido acep
         {
             aceptados[k++] = web[i++];
         }
-        else if (web[i].hora > telefono[j].hora)
-        {
-            aceptados[k++] = telefono[j++];
-        }
         else
         {
-            
-            aceptados[k++] = web[i++];
-            if (k<k_limite) //si justo cae en las 12, no me tomaba el otro valor porque incrementaban ambos
-            {
-                aceptados[k++] = telefono[j++];
-            } 
-            
-   
+            aceptados[k++] = telefono[j++];
         }
     }
 
