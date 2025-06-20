@@ -82,56 +82,67 @@ struct Pedido
     string origen;
     string destino;
 };
-void apareo_aceptados(Pedido web[], int n, Pedido telefono[], int m, Pedido aceptados[], int &k ,int &i , int &j , int k_limite)
+
+struct Iterador
 {
-    i = 0;
-    j = 0;
-    k = 0;
+    int i;
+    int j;
+    int k;
+};
+
+void apareo_aceptados(Pedido web[], int n, Pedido telefono[], int m, Pedido aceptados[], int k_limite, Iterador& iterador)
+{
                                     //PEDIDOS_MAX
-     while (i < n && j < m && k < k_limite)
+     while (iterador.i < n && iterador.j < m && iterador.k < k_limite)
     {
-        if (web[i].hora < telefono[j].hora)
+        if (web[iterador.i].hora < telefono[iterador.j].hora)
         {
-            aceptados[k++] = web[i++];
+            aceptados[iterador.k++] = web[iterador.i++];
         }
         else
         {
-            aceptados[k++] = telefono[j++];
+            aceptados[iterador.k++] = telefono[iterador.j++];
         }
     }
 
 }
-void apareo_rechazados(Pedido web[], int n, Pedido telefono[], int m, Pedido rechazados[], int &k ,int &i , int &j)
+void apareo_rechazados(Pedido web[], int n, Pedido telefono[], int m, Pedido rechazados[], Iterador& iterador)
 {
-    k = 0;
+    iterador.k = 0;
 
-    while (i < n && j < m)
+    while (iterador.i < n && iterador.j < m)
     {
-        if (web[i].hora < telefono[j].hora)
+        if (web[iterador.i].hora < telefono[iterador.j].hora)
         {
-            rechazados[k] = web[i++];
+            rechazados[iterador.k] = web[iterador.i++];
         }
         else
         {
-            rechazados[k] = telefono[j++];
+            rechazados[iterador.k] = telefono[iterador.j++];
         }
-        k++;
+        iterador.k++;
     }
 
-    while (i < n)
+    while (iterador.i < n)
     {
-        rechazados[k++] = web[i++];
+        rechazados[iterador.k++] = web[iterador.i++];
     }
 
-    while (j < m)
+    while (iterador.j < m)
     {
-        rechazados[k++] = telefono[j++];
+        rechazados[iterador.k++] = telefono[iterador.j++];
     }
 
 }
 int main () {
     int moviles = 2;
     int horas_reparto = 2;
+
+    Iterador iterador;
+    iterador.i = 0;
+    iterador.j = 0;
+    iterador.k = 0;
+
     //asumimos tamaño
     Pedido pedidos_web[MAX_CANTIDAD_PEDIDOS] = 
     {   { 6, 1001, TIPO_PAQUETE_LIVIANO, "Buenos Aires", "Rosario" },
@@ -165,10 +176,9 @@ int main () {
     int Pedidos_Max = moviles * horas_reparto * 3;
     int i_guardado;
     int j_guardado;
-    int k;
 
-    apareo_aceptados(pedidos_web, 9 , pedidos_telefonicos, 9, pedidos_a_atender, k ,i_guardado,j_guardado,Pedidos_Max);
-    apareo_rechazados(pedidos_web, 9 , pedidos_telefonicos, 9, pedidos_rechazados, k ,i_guardado,j_guardado);
+    apareo_aceptados(pedidos_web, 9 , pedidos_telefonicos, 9, pedidos_a_atender, Pedidos_Max, iterador);
+    apareo_rechazados(pedidos_web, 9 , pedidos_telefonicos, 9, pedidos_rechazados, iterador);
     
     cout << "arranca aceptados" << endl;
 
@@ -180,7 +190,7 @@ int main () {
     cout << endl;
 
     cout << "arranca rechazados" << endl;
-    for (int i = 0; i < k; i++)
+    for (int i = 0; i < iterador.k; i++)
     {   
         cout << "Hora " << pedidos_rechazados[i].hora;
         cout << " " << pedidos_rechazados[i].codigo_cliente << endl;
